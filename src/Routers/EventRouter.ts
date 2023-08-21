@@ -15,4 +15,5 @@ routerEvent.get("/search", getEventByName);
 routerEvent.get("/:_id", getEventByParams);
 routerEvent.delete("/", deleteByDate);
 routerEvent.get("/price", getEventByName);
+
 export { routerEvent };

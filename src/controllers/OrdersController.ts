@@ -6,6 +6,7 @@ import { ticket } from "../module/TicketModule";
 import nodemailer from "nodemailer";
 import { user } from "../module/UsersModule";
 import path from "path";
+import braintree from "braintree";
 import "dotenv/config";
 
 export const createOrder = async (req: Request, res: Response) => {
@@ -101,4 +102,90 @@ export const getOrderById = async (req: Request, res: Response) => {
     console.log(err);
     return res.status(500).json("Server Error");
   }
+};
+
+const gateway = new braintree.BraintreeGateway({
+  environment: braintree.Environment.Sandbox,
+  merchantId: "5vtr93jcb4nhgmsj",
+  publicKey: "7gms9yfh4gtsv5dm",
+  privateKey: "0583aa3a347d04c078f9541b8a822ec6",
+});
+
+export const generateToken = async (req: Request, res: Response) => {
+  gateway.clientToken
+    .generate({})
+    .then((response: any) => {
+      res.status(200).send(response);
+    })
+    .catch((err: any) => {
+      res.status(500).send(err);
+    });
+};
+
+export const processPayment = async (req: Request, res: Response) => {
+  const nonceFromTheClient = req.body.payment_method_nonce;
+  let transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: "nawaf.taalat.gpt@gmail.com",
+      pass: process.env.PASS_EMAIL,
+    },
+  });
+  const ticket_id = req.params.ticket_id;
+  const findTicket: any = await ticket.findOne({ _id: ticket_id });
+  if (findTicket.isSold === true) {
+    return res
+      .status(400)
+      .json({ message: "هذه التذكرة تم بيعها ولم تعد متوفرة" });
+  }
+  await order.create({
+    orderID: req.body.orderID,
+    userBuy_id: req.body.userBuy_id,
+    userSell_id: findTicket.user_id,
+    ticket_id: findTicket._id,
+    price: findTicket.price,
+    seat: findTicket.seat,
+    image: findTicket.image,
+    category: findTicket.category,
+    isSold: true,
+  });
+  gateway.transaction
+    .sale({
+      amount: findTicket.price,
+      paymentMethodNonce: nonceFromTheClient,
+      // deviceData: deviceDataFromTheClient,
+      options: {
+        submitForSettlement: true,
+      },
+    })
+    .then(async (response) => {
+      const findUser: any = await user.findOne({
+        _id: req.body.userBuy_id,
+      });
+
+      const mailOptions = {
+        from: "Last Chance",
+        to: findUser.email,
+        subject: "صورة التذكرة",
+        html: `
+      <P>مرحبا</p>
+      <img src="cid:ticketImage" alt="تذكرة الدعم الفني" >
+      `,
+        attachments: [
+          {
+            filename: `${findTicket.image}`, // اسم الملف المرفق
+            path: path.join(__dirname, `../../${findTicket.image}`), // مسار الملف المرفق
+            cid: "ticketImage", // معرف الصورة في نص HTML
+          },
+        ],
+      };
+      transporter.sendMail(mailOptions, (err, info) => {
+        if (err) {
+          console.log(err);
+        } else {
+          return res.status(200).send(response);
+        }
+      });
+    })
+    .catch((err) => res.status(500).send(err));
 };

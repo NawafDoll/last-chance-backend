@@ -38,6 +38,23 @@ export const login = async (req: Request, res: Response) => {
     const checkPassword = await bcrypt.compare(password, checkEmail.password);
     if (!checkPassword)
       return res.status(400).json({ message: "كلمة المرور غير صحيحة" });
+    if (checkEmail.isAdmin === true) {
+      const token = jwt.sign(
+        {
+          id: checkEmail._id,
+          username: checkEmail.username,
+          email: checkEmail.email,
+          isAdmin: checkEmail.isAdmin,
+        },
+        process.env.JWT_SECRET as string,
+        { expiresIn: "1d" }
+      );
+      console.log("you are Admin");
+      return res
+        .status(200)
+        .json({ message: `Welcome ${checkEmail.username}`, token });
+    }
+
     const token = jwt.sign(
       {
         id: checkEmail._id,
@@ -45,7 +62,7 @@ export const login = async (req: Request, res: Response) => {
         email: checkEmail.email,
       },
       process.env.JWT_SECRET as string,
-      { expiresIn: "1d" }
+      { expiresIn: "3d" }
     );
 
     return res

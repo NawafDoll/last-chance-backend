@@ -33,12 +33,38 @@ export const postTicket = async (req: Request, res: Response) => {
       seat: req.body.seat,
       image: file?.path,
       category: req.body.category,
+      event: req.body.event_id,
     });
 
     if (!addTicket) return res.status(400).json({ message: "" });
     return res.status(200).json("Add Ticket");
   } catch (err) {
     console.log(err);
+  }
+};
+
+export const getAllTicketAdmin = async (req: Request, res: Response) => {
+  try {
+    const allTickets = await ticket.find().populate("event");
+
+    if (allTickets) return res.status(200).json(allTickets);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json("Server Error");
+  }
+};
+
+export const ticketIsMatched = async (req: Request, res: Response) => {
+  try {
+    const _id = req.params._id;
+    const findTicket = await ticket.findByIdAndUpdate(_id, { isMatch: true });
+    if (!findTicket) {
+      return console.log("Error");
+    }
+    return res.json(findTicket);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json("Server Error");
   }
 };
 
@@ -50,7 +76,7 @@ export const getTicketUserId = async (req: Request, res: Response) => {
 
     const event_id = req.params.event_id;
     const ticketByID = (await ticket.find({ event_id: event_id }, "-image"))
-      .filter((e) => e.isSold === false)
+      .filter((e) => e.isSold === false && e.isMatch === true)
       .filter((e) => e.user_id !== user.id);
 
     if (token) return res.status(200).json(ticketByID);
@@ -106,6 +132,18 @@ export const purchaseTicket = async (req: Request, res: Response) => {
     return res.json("تم تحديث التذكرة بنجاح");
   } catch (err) {
     console.log(err);
+    return res.status(500).json("Server Error");
+  }
+};
+
+export const deleteTicketByUser = async (req: Request, res: Response) => {
+  try {
+    let token: any = req.headers.authorization;
+    token = token?.split(" ")[1];
+    const user = jwt.decode(token) as JwtPayload;
+    const findTicket = await ticket.findByIdAndDelete({ _id: req.params._id });
+    if (findTicket) return res.status(200).json("Delete Ticket");
+  } catch (err) {
     return res.status(500).json("Server Error");
   }
 };

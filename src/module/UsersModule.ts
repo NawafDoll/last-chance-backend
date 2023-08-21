@@ -6,6 +6,7 @@ const userSchema = new Schema({
   phone: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   rePassword: { type: String, required: false },
+  isAdmin: { type: Boolean, default: false },
 });
 
 export const user = model("users", userSchema);
