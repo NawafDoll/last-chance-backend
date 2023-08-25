@@ -106,9 +106,9 @@ export const getOrderById = async (req: Request, res: Response) => {
 
 const gateway = new braintree.BraintreeGateway({
   environment: braintree.Environment.Sandbox,
-  merchantId: "5vtr93jcb4nhgmsj",
-  publicKey: "7gms9yfh4gtsv5dm",
-  privateKey: "0583aa3a347d04c078f9541b8a822ec6",
+  merchantId: process.env.MERCHANT_ID as string,
+  publicKey: process.env.PUBLIC_KEY as string,
+  privateKey: process.env.PRIVATE_KEY as string,
 });
 
 export const generateToken = async (req: Request, res: Response) => {
@@ -169,7 +169,7 @@ export const processPayment = async (req: Request, res: Response) => {
         subject: "صورة التذكرة",
         html: `
       <P>مرحبا</p>
-      <img src="cid:ticketImage" alt="تذكرة الدعم الفني" >
+      <img src="cid:ticketImage" alt="تذكرة الفعالية" width="200px" hieght="200px">
       `,
         attachments: [
           {
