@@ -27,4 +27,4 @@ app.use("/user", UsersRouter_1.userRouter);
 app.use("/event", EventRouter_1.routerEvent);
 app.use("/ticket", TicketRouter_1.routerTicket);
 app.use("/order", OrderRouter_1.orderRouter);
-app.listen(3336, () => console.log("Server Running"));
+app.listen(process.env.PORT, () => console.log("Server Running"));
