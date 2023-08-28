@@ -58,6 +58,17 @@ export const getEventByParams = async (req: Request, res: Response) => {
   try {
     const id = req.params._id;
     const eventById = await event.findById(id);
+
+    if (eventById) return res.status(200).json(eventById);
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+export const getEventByEventId = async (req: Request, res: Response) => {
+  try {
+    const id = req.params._id;
+    const eventById = await event.findById(id);
     if (eventById) return res.status(200).json(eventById);
   } catch (err) {
     console.log(err);

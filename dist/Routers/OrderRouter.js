@@ -12,3 +12,6 @@ exports.orderRouter = orderRouter;
 orderRouter.post("/createOrder/:ticket_id", Protected_1.protect, OrdersController_1.createOrder);
 orderRouter.post("/captuerOrder/:ticket_id", Protected_1.protect, OrdersController_1.captureOrder);
 orderRouter.get("/:userBuy_id", Protected_1.protect, OrdersController_1.getOrderById);
+//************************************ */
+orderRouter.get("/generate/token", Protected_1.protect, OrdersController_1.generateToken);
+orderRouter.post("/payment/:ticket_id", Protected_1.protect, OrdersController_1.processPayment);

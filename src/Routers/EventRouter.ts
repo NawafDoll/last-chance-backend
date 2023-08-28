@@ -12,7 +12,7 @@ const routerEvent = express.Router();
 routerEvent.post("/", postEvent);
 routerEvent.get("/", getEvents);
 routerEvent.get("/search", getEventByName);
-routerEvent.get("/:_id", getEventByParams);
+routerEvent.get("/id/:_id", getEventByParams);
 routerEvent.delete("/", deleteByDate);
 routerEvent.get("/price", getEventByName);
 

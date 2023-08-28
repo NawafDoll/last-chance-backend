@@ -52,11 +52,23 @@ const login = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         const checkPassword = yield bcrypt_1.default.compare(password, checkEmail.password);
         if (!checkPassword)
             return res.status(400).json({ message: "كلمة المرور غير صحيحة" });
+        if (checkEmail.isAdmin === true) {
+            const token = jsonwebtoken_1.default.sign({
+                id: checkEmail._id,
+                username: checkEmail.username,
+                email: checkEmail.email,
+                isAdmin: checkEmail.isAdmin,
+            }, process.env.JWT_SECRET, { expiresIn: "1d" });
+            console.log("you are Admin");
+            return res
+                .status(200)
+                .json({ message: `Welcome ${checkEmail.username}`, token });
+        }
         const token = jsonwebtoken_1.default.sign({
             id: checkEmail._id,
             username: checkEmail.username,
             email: checkEmail.email,
-        }, process.env.JWT_SECRET, { expiresIn: "1d" });
+        }, process.env.JWT_SECRET, { expiresIn: "3d" });
         return res
             .status(200)
             .json({ message: `Welcome ${checkEmail.username}`, token });

@@ -18,3 +18,7 @@ routerTicket.get("/:event_id", Protected_1.protect, TicketController_1.getTicket
 routerTicket.get("/ticketinfo/:_id", Protected_1.protect, TicketController_1.infoTicket);
 routerTicket.get("/user/:user_id", Protected_1.protect, TicketController_1.getTicketByIdUser);
 routerTicket.put("/purchase/:_id", TicketController_1.purchaseTicket);
+routerTicket.delete("/delete/:_id", Protected_1.protect, TicketController_1.deleteTicketByUser);
+//for Admin
+routerTicket.get("/all/admin", Protected_1.protectAdmin, TicketController_1.getAllTicketAdmin);
+routerTicket.put("/ismatched/admin/:_id", TicketController_1.ticketIsMatched);

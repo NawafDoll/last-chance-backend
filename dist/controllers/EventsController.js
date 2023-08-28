@@ -9,7 +9,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteByDate = exports.getEventPrice = exports.getEventByParams = exports.getEventByName = exports.getEvents = exports.postEvent = void 0;
+exports.deleteByDate = exports.getEventPrice = exports.getEventByEventId = exports.getEventByParams = exports.getEventByName = exports.getEvents = exports.postEvent = void 0;
 const EventsModule_1 = require("../module/EventsModule");
 const postEvent = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -80,6 +80,18 @@ const getEventByParams = (req, res) => __awaiter(void 0, void 0, void 0, functio
     }
 });
 exports.getEventByParams = getEventByParams;
+const getEventByEventId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const id = req.params._id;
+        const eventById = yield EventsModule_1.event.findById(id);
+        if (eventById)
+            return res.status(200).json(eventById);
+    }
+    catch (err) {
+        console.log(err);
+    }
+});
+exports.getEventByEventId = getEventByEventId;
 const getEventPrice = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const getPrice = yield EventsModule_1.event.findOne({

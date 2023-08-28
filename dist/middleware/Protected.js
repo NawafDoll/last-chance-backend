@@ -32,7 +32,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.protect = void 0;
+exports.protectAdmin = exports.protect = void 0;
 const jwt = __importStar(require("jsonwebtoken"));
 require("dotenv/config");
 const protect = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
@@ -41,8 +41,8 @@ const protect = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
         if (token) {
             token = token.split(" ")[1];
             const user = jwt.verify(token, process.env.JWT_SECRET);
-            //   res.locals.user = user;
-            req.id = user.id;
+            res.locals.user = user;
+            // req.id = user.id;
             //   console.log(req.id);
             next();
         }
@@ -55,3 +55,26 @@ const protect = (req, res, next) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.protect = protect;
+const protectAdmin = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let token = req.headers.authorization;
+        if (token) {
+            token = token.split(" ")[1];
+            const user = jwt.verify(token, process.env.JWT_SECRET);
+            res.locals.user = user;
+            if (user.isAdmin === true) {
+                next();
+            }
+            else {
+                return res.status(400).json({ message: "you are Not Admin" });
+            }
+        }
+        else {
+            return res.status(400).json({ message: "you are Not auth" });
+        }
+    }
+    catch (err) {
+        return res.status(500).json({ message: "Server Error" });
+    }
+});
+exports.protectAdmin = protectAdmin;

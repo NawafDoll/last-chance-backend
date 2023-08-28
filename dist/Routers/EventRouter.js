@@ -11,6 +11,6 @@ exports.routerEvent = routerEvent;
 routerEvent.post("/", EventsController_1.postEvent);
 routerEvent.get("/", EventsController_1.getEvents);
 routerEvent.get("/search", EventsController_1.getEventByName);
-routerEvent.get("/:_id", EventsController_1.getEventByParams);
+routerEvent.get("/id/:_id", EventsController_1.getEventByParams);
 routerEvent.delete("/", EventsController_1.deleteByDate);
 routerEvent.get("/price", EventsController_1.getEventByName);

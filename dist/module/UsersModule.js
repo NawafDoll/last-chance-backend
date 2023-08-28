@@ -8,5 +8,6 @@ const userSchema = new mongoose_1.Schema({
     phone: { type: String, required: true, unique: true },
     password: { type: String, required: true },
     rePassword: { type: String, required: false },
+    isAdmin: { type: Boolean, default: false },
 });
 exports.user = (0, mongoose_1.model)("users", userSchema);

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.purchaseTicket = exports.getTicketByIdUser = exports.infoTicket = exports.getTicket = exports.getTicketUserId = exports.postTicket = void 0;
+exports.deleteTicketByUser = exports.purchaseTicket = exports.getTicketByIdUser = exports.infoTicket = exports.getTicket = exports.getTicketUserId = exports.ticketIsMatched = exports.getAllTicketAdmin = exports.postTicket = void 0;
 const TicketModule_1 = require("../module/TicketModule");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 // import fs from "fs";
@@ -44,6 +44,7 @@ const postTicket = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             seat: req.body.seat,
             image: file === null || file === void 0 ? void 0 : file.path,
             category: req.body.category,
+            event: req.body.event_id,
         });
         if (!addTicket)
             return res.status(400).json({ message: "" });
@@ -54,6 +55,33 @@ const postTicket = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
     }
 });
 exports.postTicket = postTicket;
+const getAllTicketAdmin = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const allTickets = yield TicketModule_1.ticket.find().populate("event");
+        if (allTickets)
+            return res.status(200).json(allTickets);
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).json("Server Error");
+    }
+});
+exports.getAllTicketAdmin = getAllTicketAdmin;
+const ticketIsMatched = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const _id = req.params._id;
+        const findTicket = yield TicketModule_1.ticket.findByIdAndUpdate(_id, { isMatch: true });
+        if (!findTicket) {
+            return console.log("Error");
+        }
+        return res.json(findTicket);
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).json("Server Error");
+    }
+});
+exports.ticketIsMatched = ticketIsMatched;
 const getTicketUserId = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let token = req.headers.authorization;
@@ -61,7 +89,7 @@ const getTicketUserId = (req, res) => __awaiter(void 0, void 0, void 0, function
         const user = jsonwebtoken_1.default.decode(token);
         const event_id = req.params.event_id;
         const ticketByID = (yield TicketModule_1.ticket.find({ event_id: event_id }, "-image"))
-            .filter((e) => e.isSold === false)
+            .filter((e) => e.isSold === false && e.isMatch === true)
             .filter((e) => e.user_id !== user.id);
         if (token)
             return res.status(200).json(ticketByID);
@@ -127,3 +155,17 @@ const purchaseTicket = (req, res) => __awaiter(void 0, void 0, void 0, function*
     }
 });
 exports.purchaseTicket = purchaseTicket;
+const deleteTicketByUser = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let token = req.headers.authorization;
+        token = token === null || token === void 0 ? void 0 : token.split(" ")[1];
+        const user = jsonwebtoken_1.default.decode(token);
+        const findTicket = yield TicketModule_1.ticket.findByIdAndDelete({ _id: req.params._id });
+        if (findTicket)
+            return res.status(200).json("Delete Ticket");
+    }
+    catch (err) {
+        return res.status(500).json("Server Error");
+    }
+});
+exports.deleteTicketByUser = deleteTicketByUser;
